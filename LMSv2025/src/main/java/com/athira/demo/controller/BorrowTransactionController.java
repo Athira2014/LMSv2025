@@ -2,17 +2,21 @@ package com.athira.demo.controller;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.athira.demo.common.APIResponse;
 import com.athira.demo.entity.BorrowTransaction;
 import com.athira.demo.service.IBorrowTransactionService;
+import com.athira.demo.util.JwtUtils;
 
 @RestController
 @RequestMapping("api/")
@@ -20,6 +24,9 @@ public class BorrowTransactionController {
 
 	@Autowired
 	IBorrowTransactionService borrowTransactionService;
+	
+	@Autowired
+	JwtUtils jwtUtils;
 	
 	@GetMapping("transactions")
 	public List<BorrowTransaction> getAllBorrowTransaction() {
@@ -44,9 +51,17 @@ public class BorrowTransactionController {
 	}
 	
 	@PostMapping("transactions/save")
-	public ResponseEntity<APIResponse> saveBorrowTransaction(@RequestBody BorrowTransaction borrowTransaction) {
+	public ResponseEntity<APIResponse> saveBorrowTransaction(@RequestBody BorrowTransaction borrowTransaction,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
 
 		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
+
 		try {
 			borrowTransactionService.saveBorrowTransaction(borrowTransaction);
 			apiResponse.setStatus(200);
@@ -62,9 +77,17 @@ public class BorrowTransactionController {
 	}
 	
 	@PostMapping("transactions/update")
-	public ResponseEntity<APIResponse> updateBorrowTransaction(@RequestBody BorrowTransaction borrowTransaction) {
+	public ResponseEntity<APIResponse> updateBorrowTransaction(@RequestBody BorrowTransaction borrowTransaction,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
 
 		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
+
 		try {
 			 borrowTransactionService.updateBorrowTransaction(borrowTransaction);
 			apiResponse.setStatus(200);

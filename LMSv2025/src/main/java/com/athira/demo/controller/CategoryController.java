@@ -1,9 +1,6 @@
 package com.athira.demo.controller;
 
 import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.criteria.CriteriaBuilder.In;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.athira.demo.common.APIResponse;
 import com.athira.demo.entity.Category;
 import com.athira.demo.service.ICategoryService;
+import com.athira.demo.util.JwtUtils;
 
 @RestController
 @RequestMapping("api/")
@@ -26,6 +25,9 @@ public class CategoryController {
 
 	@Autowired
 	ICategoryService categoryService;
+	
+	@Autowired
+	JwtUtils jwtUtils;
 
 	@Autowired
 	private APIResponse apiResponse;
@@ -54,7 +56,17 @@ public class CategoryController {
 	}
 
 	@PostMapping("categories")
-	public ResponseEntity<APIResponse> saveCategory(@RequestBody Category category) {
+	public ResponseEntity<APIResponse> saveCategory(@RequestBody Category category,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
+
+		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
+
 		if(categoryService.saveCategory(category) == null) {
 			apiResponse.setStatus(500);
 			apiResponse.setData("Category should contain only alphabets");
@@ -68,7 +80,17 @@ public class CategoryController {
 	}
 
 	@PutMapping("categories")
-	public ResponseEntity<APIResponse> editCategory(@RequestBody Category category) {
+	public ResponseEntity<APIResponse> editCategory(@RequestBody Category category,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
+
+		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
+
 		if(categoryService.saveCategory(category) == null) {
 			apiResponse.setStatus(500);
 			apiResponse.setData("Category should contain only alphabets");

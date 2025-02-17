@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,6 +19,7 @@ import com.athira.demo.common.APIResponse;
 import com.athira.demo.dto.BookCategoryAuthorDto;
 import com.athira.demo.entity.Book;
 import com.athira.demo.service.IBookService;
+import com.athira.demo.util.JwtUtils;
 
 @RestController
 @RequestMapping("api/")
@@ -28,6 +30,9 @@ public class BookController {
 
 	@Autowired
 	private APIResponse apiResponse;
+	
+	@Autowired
+	JwtUtils jwtUtils;
 	
 	@GetMapping("books")
 	public List<Book> getAllBooks() {
@@ -50,7 +55,17 @@ public class BookController {
 	}
 	
 	@PostMapping("books")
-	public ResponseEntity<APIResponse> saveBook(@RequestBody Book book) {
+	public ResponseEntity<APIResponse> saveBook(@RequestBody Book book,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
+
+		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
+
 		
 		if(bookService.saveBook(book) == null) {
 			apiResponse.setStatus(500);
@@ -65,7 +80,17 @@ public class BookController {
 	}
 	
 	@PutMapping("books")
-	public ResponseEntity<APIResponse> updateBook(@RequestBody Book book) {
+	public ResponseEntity<APIResponse> updateBook(@RequestBody Book book,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
+
+		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
+
 		
 		if(bookService.saveBook(book) == null) {
 			apiResponse.setStatus(500);

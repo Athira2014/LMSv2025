@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.athira.demo.common.APIResponse;
 import com.athira.demo.entity.Author;
 import com.athira.demo.service.IAuthorService;
+import com.athira.demo.util.JwtUtils;
 
 @RestController
 @RequestMapping("api/")
@@ -27,6 +29,9 @@ public class AuthorController {
 	
 	@Autowired
 	private APIResponse apiResponse;
+	
+	@Autowired
+	JwtUtils jwtUtils;
 	
 	@GetMapping("authors")
 	public List<Author> getAllAuthors() {
@@ -48,7 +53,17 @@ public class AuthorController {
 	
 	//Create an author
 	@PostMapping("authors")
-	public ResponseEntity<APIResponse> addAuthor(@RequestBody Author author) {
+	public ResponseEntity<APIResponse> addAuthor(@RequestBody Author author,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
+
+		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
+
 		if(authorService.saveAuthor(author) == null) {
 			apiResponse.setData("Author name should contain only alphabets.");
 			apiResponse.setStatus(500);
@@ -69,7 +84,16 @@ public class AuthorController {
 
 	//Update author
 	@PutMapping("authors")
-	public ResponseEntity<APIResponse> updateAuthor(@RequestBody Author author) {
+	public ResponseEntity<APIResponse> updateAuthor(@RequestBody Author author,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
+
+		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
 		
 		if(authorService.saveAuthor(author) == null) {
 			apiResponse.setData("Author name should contain only alphabets.");

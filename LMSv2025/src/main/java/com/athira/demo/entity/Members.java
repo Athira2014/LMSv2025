@@ -7,7 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -46,6 +48,13 @@ public class Members {
 	@Column(name = "IsActive")
 	private Boolean isActive;
 
+	@OneToOne
+    @JoinColumn(name = "userId", insertable = false, updatable = false)
+    private User user;  
+	
+	@Column(name = "userId", nullable = false)
+    private Integer userId; 
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "members")
 	private List<BorrowTransaction> borrows;
@@ -55,8 +64,8 @@ public class Members {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Members(int memberId, String name, String phoneNumber, String email, String address, DateTime joinDate,
-			String mStatus, Boolean isActive) {
+	public Members(Integer memberId, String name, String phoneNumber, String email, String address, DateTime joinDate,
+			String mStatus, Boolean isActive, Integer userId, List<BorrowTransaction> borrows) {
 		super();
 		this.memberId = memberId;
 		this.name = name;
@@ -66,6 +75,8 @@ public class Members {
 		this.joinDate = joinDate;
 		this.mStatus = mStatus;
 		this.isActive = isActive;
+		this.userId = userId;
+		this.borrows = borrows;
 	}
 
 	public Integer getMemberId() {
@@ -165,6 +176,22 @@ public class Members {
 
 	public Members orElse(Object object) {
 		return null;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 
 }

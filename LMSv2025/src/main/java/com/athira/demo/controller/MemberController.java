@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.athira.demo.common.APIResponse;
 import com.athira.demo.entity.Members;
 import com.athira.demo.service.IMemberService;
+import com.athira.demo.util.JwtUtils;
 
 @RestController
 @RequestMapping("api/")
@@ -23,6 +25,9 @@ public class MemberController {
 
 	@Autowired
 	IMemberService memberService;
+	
+	@Autowired
+	JwtUtils jwtUtils;
 
 	@GetMapping("members")
 	public List<Members> getAllMembers() {
@@ -30,9 +35,16 @@ public class MemberController {
 	}
 
 	@GetMapping("members/{id}")
-	public ResponseEntity<APIResponse> getMemberById(@PathVariable Integer id) {
+	public ResponseEntity<APIResponse> getMemberById(@PathVariable Integer id,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
 
 		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
 
 		try {
 			Members member = memberService.getMemberById(id);
@@ -52,9 +64,16 @@ public class MemberController {
 	}
 
 	@GetMapping("members/search/{name}")
-	public ResponseEntity<APIResponse> getMemberByName(@PathVariable String name) {
+	public ResponseEntity<APIResponse> getMemberByName(@PathVariable String name,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
 
 		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
 
 		if (memberService.getMemberByName(name) == null) {
 			apiResponse.setStatus(404);
@@ -75,9 +94,17 @@ public class MemberController {
 	}
 
 	@PostMapping("members")
-	public ResponseEntity<APIResponse> addMember(@RequestBody Members members) {
-		
+	public ResponseEntity<APIResponse> addMember(@RequestBody Members members,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
+
 		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
+
 		try {
 			Members member = memberService.saveMember(members);
 			apiResponse.setData(member);
@@ -94,8 +121,17 @@ public class MemberController {
 	}
 
 	@PutMapping("members")
-	public ResponseEntity<APIResponse> editMember(@RequestBody Members members) {
+	public ResponseEntity<APIResponse> editMember(@RequestBody Members members,
+			@RequestHeader(value = "authorization", defaultValue = "") String auth) {
+
 		APIResponse apiResponse = new APIResponse();
+
+		ResponseEntity<APIResponse> tokenVerificationResponse = jwtUtils.verifyToken(auth);
+
+		if (tokenVerificationResponse != null) {
+			return tokenVerificationResponse;
+		}
+
 		try {
 			Members member = memberService.saveMember(members);
 			apiResponse.setData(member);
